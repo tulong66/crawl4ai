@@ -324,6 +324,36 @@ As you can see, Crawl4AI outperforms Firecrawl significantly:
 
 You can find the full comparison code in our repository at `docs/examples/crawl4ai_vs_firecrawl.py`.
 
+### Using with Langchain
+```
+from crawl4ai.langchain import Crawl4aiLoader
+
+crawl4aiLoader = Crawl4aiLoader(url='https://en.wikipedia.org/wiki/Cricket')
+documents = crawl4aiLoader.load()
+print(documents[0].page_content)
+print(documents[0].metadata)
+```
+Note: `page_content` returned by the loader is `markdown` of `CrawlResult`, when no extraction strategy is passed to `Crawl4aiLoader`. When an extraction strategy is passed, the `page_content` of document is set to `extracted_content` of `CrawlResult`.
+
+The entire `CrawlResult` from crawl4ai is accessbile through the `metadata` field of the returned documents.
+
+You can pass these documents directly down to further processing like text splitters. Here's an example
+```
+from crawl4ai.langchain import Crawl4aiLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+crawl4aiLoader = Crawl4aiLoader(url='https://en.wikipedia.org/wiki/Royal_Enfield_Interceptor_650')
+documents = crawl4aiLoader.load()
+text_splitter = RecursiveCharacterTextSplitter(
+    # Set a really small chunk size, just to show.
+    chunk_size=500,
+    chunk_overlap=20,
+    length_function=len,
+    is_separator_regex=False,
+)
+texts = text_splitter.split_documents(documents)
+```
+
 ## Documentation 📚
 
 For detailed documentation, including installation instructions, advanced features, and API reference, visit our [Documentation Website](https://crawl4ai.com/mkdocs/).
